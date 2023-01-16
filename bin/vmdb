@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+# Debian VM setup and test script
+#
+# Copyright (c) 2022 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# Depends: vmdb2 qemu-kvm
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+: ${CROOT:=nubes/vm}
+: ${IROOT:=$HOME/.local/lib/nubes/images}
+
+vmdb () {
+	local C="$CROOT/$1"
+	local I="$IROOT/$1"
+
+	[ "$2" != 'tgz' -o ! -e "$I.tgz" ] || return 0
+
+	mkdir -p "$IROOT" &&
+	sudo vmdb2 "$C.vmdb" --output "$I.img" --rootfs-tarball "$I.tgz" -v &&
+	sudo chown "$(id -un):$(id -gn)" "$I.img" "$I.tgz"
+}
+
+mkimage () {
+	local I="$IROOT/$1"
+
+	qemu-img convert -O qcow2 "$I.img" "$I.qcow2" && rm "$I.img"
+}
+
+init () {
+	local I="$IROOT/$1"
+
+	[ -e "$I.qcow2" ] || (vmdb "$1" 'tgz' && vmdb "$1" && mkimage "$1")
+}
+
+fini () {
+	local I="$IROOT/$1"
+
+	rm -f "$I.img" "$I.qcow2"
+}
+
+run () {
+	local I="$IROOT/$1"
+
+	init "$1" && kvm -m 512 -nographic -hda "$I.qcow2"
+}
+
+case "$1" in
+  init)
+	init "$2"
+	;;
+  fini)
+	fini "$2"
+	;;
+  run)
+	run "$2"
+	;;
+  *)
+	printf 'usage:\n\tvmdb (init|fini|run) vm-name\n' >&2
+	;;
+esac

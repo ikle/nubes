@@ -1,0 +1,110 @@
+#
+# Debian 11 VM build script
+#
+# Copyright (c) 2022 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# Depends: vmdb2
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+steps:
+  - mkimg: "{{ output }}"
+    size: 4G
+
+  - mklabel: msdos
+    device: "{{ output }}"
+
+  - mkpart: primary
+    device: "{{ output }}"
+    start: 1M
+    end: 10M
+    tag: unused
+
+  - mkpart: primary
+    device: "{{ output }}"
+    start: 10M
+    end: 100%
+    tag: root
+
+  - kpartx: "{{ output }}"
+
+  - mkfs: ext4
+    partition: root
+    label: rootfs
+
+  - mount: root
+
+  - unpack-rootfs: root
+
+  - debootstrap: bullseye
+    target: root
+    mirror: http://ftp.de.debian.org/debian
+    unless: rootfs_unpacked
+
+  - fstab: root
+
+  - apt: install
+    tag: root
+    packages:
+    - linux-image-amd64
+    - grub-pc
+    - localepurge
+    - vim-nox
+    - bind9-host
+    - net-tools
+    - curl
+    - wget
+    - tree
+    - bash-completion
+    unless: rootfs_unpacked
+
+  - chroot: root
+    shell: |
+      apt-get clean
+      rm -rf /var/lib/apt/lists/* /var/cache/*
+
+  - chroot: root
+    shell: |
+      echo LANG=C.UTF-8 > /etc/default/locale
+      echo -n > /etc/motd
+      echo debian-11 > /etc/hostname
+
+  - chroot: root
+    shell: |
+      ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+      echo Europe/Moscow > /etc/timezone
+
+  - chroot: root
+    shell: |
+      systemctl enable serial-getty@ttyS0.service
+
+  - chroot: root
+    shell: |
+      echo 'root:Qwe123$' | chpasswd
+
+  - chroot: root
+    shell: |
+      echo					>> /root/.bashrc
+      echo 'stty -ixon cols 110 rows 42'	>> /root/.bashrc
+      echo "export TERM='xterm-256color'"	>> /root/.bashrc
+      echo "alias ls='ls --color'"		>> /root/.bashrc
+      echo "alias l='ls -l'"			>> /root/.bashrc
+      echo "alias lh='l -h'"			>> /root/.bashrc
+      echo "alias la='l -A'"			>> /root/.bashrc
+
+  - chroot: root
+    shell: |
+      echo 'allow-hotplug eth0'   >  /etc/network/interfaces.d/eth0
+      echo 'iface eth0 inet dhcp' >> /etc/network/interfaces.d/eth0
+
+  - chroot: root
+    shell: |
+      sed -ri '/^GRUB_DISABLE_OS_PROBER/d'  /etc/default/grub
+      echo 'GRUB_DISABLE_OS_PROBER=true' >> /etc/default/grub
+
+  - grub: bios
+    tag: root
+    console: serial
+
+  - cache-rootfs: root
+    unless: rootfs_unpacked
