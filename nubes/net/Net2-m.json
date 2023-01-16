@@ -1,0 +1,6 @@
+{
+	"type": "bridge",
+	"g": 1,
+	"n": 2,
+	"iface": "net-2-m"
+}

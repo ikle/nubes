@@ -1,0 +1,14 @@
+{
+	"type": "cat-4-pds",
+	"g": 1,
+	"n": 6,
+
+	"base": "edge-0",
+
+	"net": [
+		"Net6-m",
+		"Net5",
+		"Net5",
+		"Net5"
+	]
+}

@@ -1,0 +1,17 @@
+{
+	"type": "cat-7",
+	"g": 1,
+	"n": 2,
+
+	"base": "edge-0",
+
+	"net": [
+		"Net2-m",
+		"Net1",
+		"Net1",
+		"Net1",
+		"Net2",
+		"Net2",
+		"Net2"
+	]
+}

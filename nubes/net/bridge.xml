@@ -1,0 +1,7 @@
+<network>
+  <name>{name}</name>
+  <uuid>4e36d334-0e9b-47fb-92ed-00000000{gg}{nn}</uuid>
+  <bridge name='{iface}' stp='off' delay='0'/>
+  <mac address='02:de:00:{gg}:{nn}:00'/>
+  <domain name='{name}'/>
+</network>

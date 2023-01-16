@@ -6,6 +6,7 @@
 *-test
 
 sysroot
+__pycache__
 
 */doc/db
 */doc/html

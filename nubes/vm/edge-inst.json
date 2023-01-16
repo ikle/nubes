@@ -1,0 +1,14 @@
+{
+	"type": "cat-4-inst",
+	"g": 1,
+	"n": 0,
+
+	"installer": "edge-installer-vpn-amd64.img",
+
+	"net": [
+		"Net1-m",
+		"Net1",
+		"Net2",
+		"Net2"
+	]
+}

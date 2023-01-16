@@ -1,0 +1,97 @@
+<domain type='kvm'>
+  <name>{name}</name>
+  <uuid>4e36d334-0e9b-47fb-92ed-00000000{gg}{nn}</uuid>
+  <memory unit='MiB'>512</memory>
+  <vcpu placement='static'>1</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc'>hvm</type>
+    <bootmenu enable='yes'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <vmport state='off'/>
+  </features>
+  <cpu mode='host-model' check='partial'>
+    <model fallback='allow'/>
+  </cpu>
+  <clock offset='utc'>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <pm>
+    <suspend-to-mem enabled='no'/>
+    <suspend-to-disk enabled='no'/>
+  </pm>
+  <devices>
+    <emulator>/usr/bin/kvm</emulator>
+
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='{images}/{name}.qcow2'/>
+      <target dev='vda' bus='virtio'/>
+      <boot order='2'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
+    </disk>
+
+    <controller type='pci' index='0' model='pci-root'/>
+    <controller type='usb' index='0' model='ich9-ehci1'>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x7'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci1'>
+      <master startport='0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0' multifunction='on'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci2'>
+      <master startport='2'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x1'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci3'>
+      <master startport='4'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x2'/>
+    </controller>
+
+    <interface type='network'>
+      <mac address='02:de:00:{gg}:{nn}:00'/>
+      <source network='{net[0]}'/>
+      <model type='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
+    </interface>
+    <interface type='network'>
+      <mac address='02:de:00:{gg}:{nn}:01'/>
+      <source network='{net[1]}'/>
+      <model type='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
+    </interface>
+    <interface type='network'>
+      <mac address='02:de:00:{gg}:{nn}:02'/>
+      <source network='{net[2]}'/>
+      <model type='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
+    </interface>
+    <interface type='network'>
+      <mac address='02:de:00:{gg}:{nn}:03'/>
+      <source network='{net[3]}'/>
+      <model type='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x08' function='0x0'/>
+    </interface>
+
+    <sound model='es1370'>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x1e' function='0x0'/>
+    </sound>
+
+    <serial type='unix'>
+      <source mode='bind' path='{ttys}/{name}'/>
+      <target type='isa-serial' port='0'/>
+    </serial>
+
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+
+    <memballoon model='none'/>
+  </devices>
+</domain>

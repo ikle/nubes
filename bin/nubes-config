@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+#
+# Virtual Machine Management System
+#
+# Copyright (c) 2022 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+import os, nubes
+
+for n in (os.path.splitext (f.name) for f in os.scandir ('nubes/net')):
+	if n[1] == '.json':
+		o = nubes.Net (n[0])
+		o.gen_xml ()
+
+for n in (os.path.splitext (f.name) for f in os.scandir ('nubes/vm')):
+	if n[1] == '.json':
+		o = nubes.VM (n[0])
+		o.gen_xml ()
+
