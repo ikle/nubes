@@ -9,6 +9,14 @@
 
 import json, os, random
 
+from subprocess import run, DEVNULL
+
+def runs (*args):
+	run (args, stdout = DEVNULL, stderr = DEVNULL)
+
+def runc (*args):
+	run (args, stdout = DEVNULL, check = True)
+
 class Config:
 	def __init__ (o, root, name):
 		o.home = os.environ['HOME']
