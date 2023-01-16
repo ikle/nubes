@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# Source files cache
+#
+# Copyright (c) 2022 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# Depends: jq, wget
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+: ${CROOT:=nubes/src}
+: ${IROOT:=$HOME/.cache/nubes/src}
+
+die () {
+	echo "E: $1" >&1
+	exit 1
+}
+
+init () {
+	local C="$CROOT/$1.json"
+	local I="$IROOT"
+	local M="$(jq -r '.mirror' "$C")"
+	local O="$(jq -r '.object' "$C")"
+
+	[ "$M" != 'null' ] || die "Mirror does not defined for $1"
+	[ "$O" != 'null' ] || die "Object does not defined for $1"
+
+	[ ! -e "$I/$O" ] || return 0
+
+	mkdir -p "$IROOT" &&
+	wget -c -O "$I/$O.part" "$M/$O" && mv "$I/$O.part" "$I/$O"
+}
+
+fini () {
+	local C="$CROOT/$1.json"
+	local I="$IROOT"
+	local O="$(jq -r '.object' "$C")"
+
+	[ "$O" = 'null' ] || rm -f "$I/$O.part" "$I/$O"
+}
+
+case "$1" in
+  init)
+	init "$2"
+	;;
+  fini)
+	fini "$2"
+	;;
+  *)
+	printf 'usage:\n\tnubes-src (init|fini) source-name\n' >&2
+	;;
+esac
