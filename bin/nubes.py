@@ -4,10 +4,11 @@
 #
 # Copyright (c) 2022 Alexei A. Smekalkine <ikle@ikle.ru>
 #
+# Depends: wget
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import json, os, random
+import contextlib, json, os, random
 
 from subprocess import run, DEVNULL
 
@@ -26,6 +27,31 @@ class Config:
 		conf = os.path.join (o.root, o.name + '.json')
 
 		o.vars = json.load (open (conf, 'r'))
+
+class Source (Config):
+	def __init__ (o, name):
+		super().__init__ ('nubes/src', name)
+
+		if not 'mirror' in o.vars:
+			raise KeyError ('No mirror specified')
+
+		if not 'object' in o.vars:
+			raise KeyError ('No object specified')
+
+		o.source = o.vars['mirror'] + '/' + o.vars['object']
+		o.cache  = o.home + '/.cache/nubes/src'
+		o.target = os.path.join (o.cache, o.vars['object'])
+
+	def init (o):
+		if not os.path.isfile (o.target):
+			os.makedirs (o.cache, exist_ok = True)
+			runc ('wget', '-c', '-O', o.target + '.part', o.source)
+			os.replace (o.target + '.part', o.target)
+
+	def fini (o):
+		with contextlib.suppress (FileNotFoundError):
+			os.remove (o.target)
+			os.remove (o.target + '.part')
 
 class Template (Config):
 	def __init__ (o, root, name):
