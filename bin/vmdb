@@ -8,18 +8,20 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-: ${CROOT:=nubes/vm}
+: ${VROOT:=nubes/vm}
 : ${IROOT:=$HOME/.local/lib/nubes/images}
+: ${CROOT:=$HOME/.cache/nubes/images}
 
 vmdb () {
-	local C="$CROOT/$1"
-	local I="$IROOT/$1"
+	local V="$VROOT/$1.vmdb"
+	local I="$IROOT/$1.img"
+	local T="$IROOT/$1.tgz"
 
-	[ "$2" != 'tgz' -o ! -e "$I.tgz" ] || return 0
+	[ "$2" != 'tgz' -o ! -e "$T" ] || return 0
 
 	mkdir -p "$IROOT" &&
-	sudo vmdb2 "$C.vmdb" --output "$I.img" --rootfs-tarball "$I.tgz" -v &&
-	sudo chown "$(id -un):$(id -gn)" "$I.img" "$I.tgz"
+	sudo vmdb2 "$V" --output "$I" --rootfs-tarball "$T" -v &&
+	sudo chown "$(id -un):$(id -gn)" "$I" "$T"
 }
 
 mkimage () {
