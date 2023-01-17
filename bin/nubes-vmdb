@@ -59,6 +59,6 @@ case "$1" in
 	run "$2"
 	;;
   *)
-	printf 'usage:\n\tvmdb (init|fini|run) image-name\n' >&2
+	printf 'usage:\n\tnubes-vmdb (init|fini|run) image-name\n' >&2
 	;;
 esac
