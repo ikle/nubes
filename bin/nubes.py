@@ -27,6 +27,10 @@ class Config:
 
 		o.vars = json.load (open (conf, 'r'))
 
+class Template (Config):
+	def __init__ (o, root, name):
+		super().__init__ (root, name)
+
 		if not 'type' in o.vars:
 			raise KeyError ('No type specified')
 
@@ -49,7 +53,7 @@ class Config:
 			for line in open (o.template, 'r'):
 				xml.write (line.format (**o.vars))
 
-class Net (Config):
+class Net (Template):
 	def __init__ (o, name):
 		super().__init__ ('nubes/net', name)
 
@@ -59,7 +63,7 @@ class Net (Config):
 		o.xmls = o.home + '/.local/lib/nubes/net'
 		o.xml  = os.path.join (o.xmls, o.name + '.xml')
 
-class VM (Config):
+class VM (Template):
 	def __init__ (o, name):
 		super().__init__ ('nubes/vm', name)
 
